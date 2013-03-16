@@ -31,6 +31,7 @@ public:
 	size_t length() const
 	{ return m_str ? strlen(m_str) : 0; }
 
+	bool reserve( size_t size );
 	bool resize( size_t size ); //< Not implemented/supported!
 	//{ assert(false); return false; }
 

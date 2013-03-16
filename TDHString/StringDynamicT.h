@@ -34,6 +34,15 @@ public:
 	size_t length() const
 	{ return m_str ? strlen(m_str) : 0; }
 
+	bool reserve( size_t size )
+	{
+		if ( size <= capacity() || !size )
+			return true;
+		
+		//TODO: to error, or not to error, to crimp off, or fail etc
+		return resize(size); 
+	}
+
 	bool resize( size_t newCapacity )
 	{
 		if ( newCapacity <= capacity() || !newCapacity )

@@ -27,6 +27,12 @@ public:
 	size_t length() const
 	{ return strlen(m_str); }
 
+	bool reserve( size_t size )
+	{
+		//TODO: to error, or not to error, to crimp off, or fail etc
+		return size <= capacity(); 
+	}
+
 	bool resize( size_t size )
 	{
 		//TODO: to error, or not to error, to crimp off, or fail etc
@@ -65,6 +71,12 @@ public:
 
 	size_t length() const
 	{ return strlen(m_str); }
+
+	bool reserve( size_t size )
+	{
+		//TODO: to error, or not to error, to crimp off, or fail etc
+		return size <= capacity(); 
+	}
 
 	bool resize( size_t size )
 	{
