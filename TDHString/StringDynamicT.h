@@ -65,6 +65,9 @@ public:
 		memcpy_s( m_str, sizeof(*m_str) * capacity(), rhs.m_str, sizeof(*rhs.m_str) * rhsLength ); 
 	}
 
+	_CharT& operator[] ( const size_t index )
+	{ assert( index < capacity() ); return m_str[index]; }
+
 protected:
 	_CharT* m_str;
 	size_t m_capacity;

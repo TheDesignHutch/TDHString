@@ -42,6 +42,9 @@ public:
 	void operator = ( const StringFixedT& rhs )
 	{ memcpy_s( m_str, sizeof(*m_str) * capacity(), rhs.m_str, sizeof(*rhs.m_str) * rhs.length()+1 ); }
 
+	_CharT& operator[] ( const size_t index )
+	{ assert( index < capacity() ); return m_str[index]; }
+
 protected:
 	_CharT m_str[_MaxStorageLen];
 	template < class _LhsTraits, class _RhsTraits > friend struct StringCopy;
@@ -87,8 +90,10 @@ public:
 	void operator = ( const StringFixedHeapT& rhs )
 	{ memcpy_s( m_str, sizeof(*m_str) * capacity(), rhs.m_str, sizeof(*rhs.m_str) * rhs.length()+1 ); }
 
+	_CharT& operator[] ( const size_t index )
+	{ assert( index < capacity() ); return m_str[index]; }
 protected:
-	_CharT* m_str;
+	_CharT* ;
 
 	template < class _LhsTraits, class _RhsTraits > friend struct StringCopy;
 };

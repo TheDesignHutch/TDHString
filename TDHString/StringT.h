@@ -14,6 +14,11 @@ class StringT : public _DataT
 {
 public:
 	typedef _DataT DataT;
+	
+	//TODO: create STL compatible iterator types for algo support
+	typedef _CharT* iterator;
+	typedef const _CharT* const_iterator;
+
 public:	
 	StringT();
 
@@ -25,9 +30,29 @@ public:
 	*/
 	template < class _StringT > StringT( const _StringT& rhs );
 
-	//TODO: StringLiteralT canot support this!?!?!
-	//_CharT& operator[] ( const size_t index );
+	//As stringLiteral is constant access only we cannot supply a non-const array accessor
+	//TODO: fund a work aroudn other than putting this in the base!
 	const _CharT operator[] ( const size_t index ) const;
+
+	/** size() for STL container compatibility
+	*/
+	size_t size() const
+	{ return length(); }
+
+	/** Clear string contents
+		\remarks Does not affect internal capacity etc
+	*/
+	void clear()
+	{ 
+		resize(0);
+		if ( m_str )
+			m_str[0] = '\0';
+	}
+
+	/** Returns if no string is stored or if the first character is null temrinator (i.e. length() == 0)
+	*/
+	size_t empty() const
+	{ return c_str() == 0 || *c_str() == '\0'; }
 
 	void operator += ( const _CharT* rhs );
 
@@ -52,7 +77,32 @@ public:
 	template < class _StringT > void assign( const _StringT& rhs );
 	template < class _StringT > void assign( unsigned int index, const _StringT& rhs );
 
+	//TODO: proper iterator support
+	iterator begin()
+	{ return m_str; }
 
+	//TODO: proper iterator support
+	iterator end()
+	{
+		if ( !m_str ) return 0;
+		return m_str+length();
+	}
+
+	//TODO: proper iterator support
+	iterator rbegin()
+	{
+		if ( !m_str ) return 0;
+		size_t len = length();
+		if ( len ) len -= 1; //< move before the null terminator
+		return m_str + len;
+	}
+
+	//TODO: proper iterator support
+	iterator rend()
+	{
+		if ( !m_str ) return 0;
+		return m_str-1; //< Return iterator before begin
+	}
 };
 
 
