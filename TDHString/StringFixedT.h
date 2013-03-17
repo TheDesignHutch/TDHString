@@ -92,8 +92,9 @@ public:
 
 	_CharT& operator[] ( const size_t index )
 	{ assert( index < capacity() ); return m_str[index]; }
+
 protected:
-	_CharT* ;
+	_CharT* m_str;
 
 	template < class _LhsTraits, class _RhsTraits > friend struct StringCopy;
 };
