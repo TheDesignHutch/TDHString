@@ -85,9 +85,11 @@ template <>
 int StringCompare<char,true>::operator()( const char* lhs, const char* rhs ) const
 { return strcmp( lhs, rhs ); }
 
+# pragma warning(disable : 4996)
 template <>
 int StringCompare<char,false>::operator()( const char* lhs, const char* rhs ) const
-{ return _stricmp( lhs, rhs ); }
+{ return stricmp( lhs, rhs ); }
+# pragma warning(default : 4996)
 
 //-------------------------------------------------------------
 // StringCompare_Equal Impl

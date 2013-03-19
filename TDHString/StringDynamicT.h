@@ -28,6 +28,12 @@ public:
 	const _CharT* c_str() const
 	{ return m_str; }
 
+	_CharT& operator[] ( const size_t index )
+	{ assert( index < capacity() ); return m_str[index]; }
+
+	const _CharT operator[] ( const size_t index ) const
+	{ assert( index < capacity() ); return m_str[index]; }
+
 	size_t capacity() const
 	{ return m_capacity; }
 
@@ -65,14 +71,11 @@ public:
 		memcpy_s( m_str, sizeof(*m_str) * capacity(), rhs.m_str, sizeof(*rhs.m_str) * rhsLength ); 
 	}
 
-	_CharT& operator[] ( const size_t index )
-	{ assert( index < capacity() ); return m_str[index]; }
-
-protected:
+private:
 	_CharT* m_str;
 	size_t m_capacity;
 
-	template < class _LhsTraits, class _RhsTraits > friend struct StringCopy;
+	template<class _CharT> friend struct StringCopy;
 };
 
 #if 0

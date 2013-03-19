@@ -5,7 +5,10 @@
 
 #include "TDHString\String.h"
 
+#include <intrin.h>
 #include <cassert>
+#include <string>
+#include <strstream>
 
 #define BEGIN_TESTS \
 	printf( ">>Started: " __FUNCTION__ "\n" ); \
@@ -16,6 +19,7 @@
 	if ( !(_check) ) { \
 		++failureCount; \
 		printf( "\t-FAIL: " #_test "\n\t\tTest " #_check ", result= %d\n", result ); \
+		__debugbreak(); \
 	} else { \
 		printf( "\t+PASS: " #_test "\n\t\tTest " #_check ", result= %d\n", result ); \
 	} }
@@ -88,6 +92,16 @@ bool testCompare()
 	TEST( (StringCompare_Greater<char,false>()("A", "b")), (result == 0) );
 	TEST( (StringCompare_Greater<char,false>()("B", "a")), (result == 1) );
 
+	const String a("a");
+	TEST( (a == "a"), (result == 1) );
+	TEST( (a == "b"), (result == 0) );
+	TEST( (a != "b"), (result == 1) );
+	TEST( (a != "a"), (result == 0) );
+	TEST( ("a" == a), (result == 1) );
+	TEST( ("b" == a), (result == 0) );
+	TEST( ("a" != a), (result == 0) );
+	TEST( ("b" != a), (result == 1) );
+
 	END_TESTS;
 }
 
@@ -151,6 +165,10 @@ bool testStringConstructAssign8()
 	{
 		TEST( (StringCompare_Equal<char>()(arrInit[i], s[i])), (result == 1) );
 	}
+
+	const _TString s7("1234567");
+	const _TString s3("1234567",3);
+	TEST( (StringCompare_Greater<char>()(s3, "123")), (result == 1) );
 
 	END_TESTS;
 }
@@ -235,6 +253,109 @@ bool testStringAssign8()
 	END_TESTS;
 }
 
+template< class _TString >
+bool testStringClearEmpty8()
+{
+	BEGIN_TESTS;
+	//Test strings
+	const int kSCount = 7;
+	const char* s[kSCount] = {
+		"1", "12", "123", "1234", "12345", "123456", "1234567" };
+
+	_TString a[kSCount];	
+	for ( int i =0; i < kSCount; ++i )
+	{
+		a[i] = s[i];
+		TEST( (StringCompare_Equal<char>()(a[i], s[i])), (result == 1) );
+	}
+	for ( int i =0; i < kSCount; ++i )
+	{
+		TEST( (a[i].empty()), (result == 0) );
+		TEST( (a[i].size()==strlen(s[i])), (result == 1) );
+		TEST( (a[i].length()==strlen(s[i])), (result == 1) );
+		a[i].clear();
+		TEST( (a[i].empty()), (result == 1) );
+		TEST( (a[i].size()), (result == 0) );
+		TEST( (a[i].length()), (result == 0) );
+	}
+
+	END_TESTS;
+}
+
+template< class _TString >
+bool testStringStdStream8()
+{
+	BEGIN_TESTS;
+
+	std::strstream stream;
+	String in("foo");
+	stream << in <<  std::ends; //, Null terminated string
+	String out = stream.str();
+	TEST( (StringCompare_Equal<char>()(in, out)), (result == 1) );
+
+	std::string foo(in.c_str());
+	String t = foo;
+	TEST( (StringCompare_Equal<char>()(t, in)), (result == 1) );
+
+	END_TESTS;
+}
+
+template< class _TString >
+bool testStringIterator8()
+{
+	BEGIN_TESTS;
+	//Test strings
+	const char* s = "1234567";
+	const char* s2 = "abcdefg";
+
+	_TString a(s);	
+	TEST( (StringCompare_Equal<char>()(a, s)), (result == 1) );
+
+	//non-const iterator
+	size_t index = 0;
+	for ( _TString::const_iterator iChr = a.begin(); iChr != a.end(); ++iChr, ++index )
+	{
+		TEST( (a[index] == s[index]), (result == 1) );
+		TEST( (*iChr == s[index]), (result == 1) );
+		TEST( (iChr-a.begin() == index), (result == 1) );
+	}
+	TEST( (index == strlen(s)), (result == 1) );
+
+	//non-const iterator
+	/*Index*/ index = 0;
+	for ( _TString::iterator iChr = a.begin(); iChr != a.end(); ++iChr, ++index )
+	{
+		TEST( (a[index] == s[index]), (result == 1) );
+		TEST( (*iChr == s[index]), (result == 1) );
+		TEST( (iChr-a.begin() == index), (result == 1) );
+	}
+	TEST( (index == strlen(s)), (result == 1) );
+
+	//non-const iterator assignment
+	/*Index*/ index = 0;
+	for ( _TString::iterator iChr = a.begin(); iChr != a.end(); ++iChr, ++index )
+	{
+		TEST( (a[index] == s[index]), (result == 1) );
+		*iChr = s2[index];
+		TEST( (a[index] == s2[index]), (result == 1) );
+	}
+	TEST( (index == strlen(s)), (result == 1) );
+	TEST( (StringCompare_Equal<char>()(a, s2)), (result == 1) ); //<NOTE: for test s and s2 must be same length at present!
+
+	//Reverse iterator
+	/*Index*/ index = strlen(s)-1;
+	for ( _TString::iterator iChr = a.rbegin(); iChr != a.rend(); --iChr, --index )
+	{
+		TEST( (*iChr == s2[index]), (result == 1) );
+		*iChr = s[index];//< Set back to s to test  iterator positions correct
+		TEST( (*iChr == s[index]), (result == 1) ); 
+	}
+	TEST( (index == -1), (result == 1) );
+
+	TEST( (StringCompare_Equal<char>()(a, s)), (result == 1) ); //< should be back to original string
+
+	END_TESTS;
+}
 //-------------------------------------------------------------
 // StringCompare test
 //-------------------------------------------------------------
@@ -284,6 +405,41 @@ bool testStringAppend()
 	END_TESTS;
 }
 
+bool testStringClearEmpty()
+{
+	BEGIN_TESTS;	
+
+	TEST( (testStringClearEmpty8< Fixed >()), (result == 1) );
+	TEST( (testStringClearEmpty8< FixedHeap >()), (result == 1) );
+	TEST( (testStringClearEmpty8< DynamicHeap >()), (result == 1) );
+
+	END_TESTS;
+}
+
+bool testStringIterator()
+{
+	BEGIN_TESTS;	
+
+	TEST( (testStringIterator8< Fixed >()), (result == 1) );
+	TEST( (testStringIterator8< FixedHeap >()), (result == 1) );
+	TEST( (testStringIterator8< DynamicHeap >()), (result == 1) );
+
+	END_TESTS;
+}
+
+
+bool testStringStdStream()
+{
+	BEGIN_TESTS;	
+
+	//TEST( (testStringStdStream8< Literal >()), (result == 1) );
+	TEST( (testStringStdStream8< Fixed >()), (result == 1) );
+	TEST( (testStringStdStream8< FixedHeap >()), (result == 1) );
+	TEST( (testStringStdStream8< DynamicHeap >()), (result == 1) );
+
+	END_TESTS;
+}
+
 
 bool runTests()
 {
@@ -291,6 +447,9 @@ bool runTests()
 	TEST( (testCompare()), (result == 1) );
 	TEST( (testStringAssign()), (result == 1) );
 	TEST( (testStringAppend()), (result == 1) );
+	TEST( (testStringClearEmpty()), (result == 1) );
+	TEST( (testStringIterator()), (result == 1) );
+	TEST( (testStringStdStream()), (result == 1) );
 
 	END_TESTS;
 }
