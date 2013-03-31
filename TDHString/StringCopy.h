@@ -21,7 +21,7 @@ template < class _LhsString, class _RhsString >
 void StringCopy<_CharT>::operator()( _LhsString& lhs, const _RhsString& rhs ) const
 { 
 	const size_t rhsLength = rhs.length();
-	lhs.resize( rhsLength+1 );
+	lhs.resize( rhsLength );
 	const size_t lhsCapacity = lhs.capacity();
 	memcpy_s( lhs.m_str, sizeof(*lhs.m_str) * lhsCapacity, rhs.c_str(), sizeof(*rhs.c_str()) * rhsLength );
 	lhs.m_str[rhsLength] = '\0';//< terminate string
@@ -38,7 +38,7 @@ template < class _LhsString, class _RhsString >
 void StringCopy<_CharT>::operator()( size_t pos, _LhsString& lhs, const _RhsString& rhs ) const
 { 
 	const size_t rhsLength = rhs.length();
-	lhs.resize( pos + rhsLength+1 );
+	lhs.resize( pos + rhsLength );
 	const size_t lhsCapacity = lhs.capacity();
 	memcpy_s( lhs.m_str+pos, sizeof(*lhs.m_str) * lhsCapacity, rhs.m_str, sizeof(*rhs.m_str) * rhsLength );
 	lhs.m_str[pos+rhsLength] = '\0';//< terminate string

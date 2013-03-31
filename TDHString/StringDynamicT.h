@@ -12,11 +12,13 @@ public:
 	StringDynamicHeapT() 
 		: m_str(0)
 		, m_capacity(0)
+		, m_length(0)
 	{}
 
 	StringDynamicHeapT( const StringDynamicHeapT& rhs ) 
 		: m_str(0)
 		, m_capacity( rhs.length()+1 )
+		, m_length(0)
 	{ 
 		m_str = new _CharT[ m_capacity ];
 		*this = rhs; 
@@ -38,42 +40,45 @@ public:
 	{ return m_capacity; }
 
 	size_t length() const
-	{ return m_str ? strlen(m_str) : 0; }
+	{ return m_length; }
 
-	bool reserve( size_t size )
+	bool reserve( size_t newLength )
 	{
-		if ( size <= capacity() || !size )
+		if ( newLength < capacity() )
 			return true;
-		
-		//TODO: to error, or not to error, to crimp off, or fail etc
-		return resize(size); 
-	}
 
-	bool resize( size_t newCapacity )
-	{
-		if ( newCapacity <= capacity() || !newCapacity )
-			return true;
+		size_t oldCapacity = m_capacity;
+		m_capacity = newLength+1;
 
 		_CharT* oldStr = m_str;
-		m_str = new _CharT[ newCapacity ];
+		m_str = new _CharT[m_capacity];
 		if ( !m_str )
 			return assert(false), false;
 		if ( oldStr )
-			memcpy_s( m_str, sizeof(*m_str) * capacity(), oldStr, sizeof(*oldStr) * strlen(oldStr)+1 ); 
-		m_capacity = newCapacity;
+			memcpy_s( m_str, sizeof(*m_str) * oldCapacity, oldStr, sizeof(*oldStr) * oldCapacity ); 
 		return true;
+	}
+
+	bool resize( size_t newLength )
+	{
+		bool ret = reserve(newLength);
+		assert(ret);
+		m_length = newLength;
+		return ret;
 	}
 
 	void operator = ( const StringDynamicHeapT& rhs )
 	{
-		const size_t rhsLength = rhs.length()+1;
-		resize( rhsLength );
-		memcpy_s( m_str, sizeof(*m_str) * capacity(), rhs.m_str, sizeof(*rhs.m_str) * rhsLength ); 
+		m_length = rhs.m_length;
+		resize( m_length );
+		memcpy_s( m_str, sizeof(*m_str) * capacity(), rhs.m_str, sizeof(*rhs.m_str) * m_length ); 
+		m_str[m_length] = '\0';
 	}
 
 private:
 	_CharT* m_str;
 	size_t m_capacity;
+	size_t m_length;
 
 	template<class _CharT> friend struct StringCopy;
 };

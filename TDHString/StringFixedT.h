@@ -13,9 +13,10 @@ class StringFixedT
 public:
 
 	StringFixedT() 
+		: m_length(0)
 	{ assert(_MaxStorageLen); m_str[0] = '\0'; }
 
-	StringFixedT( const StringFixedT& rhs ) 
+	StringFixedT( const StringFixedT& rhs )
 	{ *this = rhs; }
 
 	const _CharT* c_str() const
@@ -31,25 +32,34 @@ public:
 	{ return _MaxStorageLen; }
 
 	size_t length() const
-	{ return strlen(m_str); }
+	{ return m_length; }
 
-	bool reserve( size_t size )
+	bool reserve( size_t newLength )
 	{
+		bool valid = newLength < capacity();
+		assert(valid);
 		//TODO: to error, or not to error, to crimp off, or fail etc
-		return size <= capacity(); 
+		return valid; 
 	}
 
-	bool resize( size_t size )
+	bool resize( size_t newLength )
 	{
+		bool valid = newLength < capacity();
+		assert(valid);
+		m_length = newLength;
 		//TODO: to error, or not to error, to crimp off, or fail etc
-		return size <= capacity(); 
+		return valid; 
 	}
 
 	void operator = ( const StringFixedT& rhs )
-	{ memcpy_s( m_str, sizeof(*m_str) * capacity(), rhs.m_str, sizeof(*rhs.m_str) * rhs.length()+1 ); }
+	{
+		m_length = rhs.m_length;
+		memcpy_s( m_str, sizeof(*m_str) * capacity(), rhs.m_str, sizeof(*rhs.m_str) * m_length+1 ); 
+	}
 
 protected:
 	_CharT m_str[_MaxStorageLen];
+	size_t m_length;
 	template<class _CharT> friend struct StringCopy;
 };
 
@@ -60,6 +70,7 @@ public:
 
 	StringFixedHeapT() 
 		: m_str( new _CharT[_MaxStorageLen] )
+		, m_length(0)
 	{ m_str[0] = '\0'; }
 
 	StringFixedHeapT( const StringFixedHeapT& rhs ) 
@@ -82,25 +93,35 @@ public:
 	{ return _MaxStorageLen; }
 
 	size_t length() const
-	{ return strlen(m_str); }
+	{ return m_length; }
 
-	bool reserve( size_t size )
+	bool reserve( size_t newLength )
 	{
+		bool valid = newLength < capacity();
+		assert(valid);
 		//TODO: to error, or not to error, to crimp off, or fail etc
-		return size <= capacity(); 
+		return valid; 
 	}
 
-	bool resize( size_t size )
+	bool resize( size_t newLength )
 	{
+		bool valid = newLength < capacity();
+		assert(valid);
+		m_length = newLength;
 		//TODO: to error, or not to error, to crimp off, or fail etc
-		return size <= capacity(); 
+		return valid; 
 	}
 
 	void operator = ( const StringFixedHeapT& rhs )
-	{ memcpy_s( m_str, sizeof(*m_str) * capacity(), rhs.m_str, sizeof(*rhs.m_str) * rhs.length()+1 ); }
+	{ 
+		m_length = rhs.m_length;
+		memcpy_s( m_str, sizeof(*m_str) * capacity(), rhs.m_str, sizeof(*rhs.m_str) * m_length ); 
+		m_str[m_length] = '\0';
+	}
 
 private:
 	_CharT* m_str;
+	size_t m_length;
 
 	template<class _CharT> friend struct StringCopy;
 };
