@@ -15,15 +15,15 @@ struct StringCompare
 					1 if lhs > rhs
 	*/
 	template < class _LhsDataT, class _RhsDataT >
-	int operator()( const _LhsDataT& lhs, const _RhsDataT& rhs ) const;
+	inline int operator()( const _LhsDataT& lhs, const _RhsDataT& rhs ) const;
 	
 	template < class _LhsDataT >
-	int operator()( const _LhsDataT& lhs, const _CharT* rhs ) const;
+	inline int operator()( const _LhsDataT& lhs, const _CharT* rhs ) const;
 
 	template < class _RhsDataT >
-	int operator()( const _CharT* lhs, const _RhsDataT& rhs ) const;
+	inline int operator()( const _CharT* lhs, const _RhsDataT& rhs ) const;
 
-	int operator()( const _CharT* lhs, const _CharT* rhs ) const;
+	inline int operator()( const _CharT* lhs, const _CharT* rhs ) const;
 };
 
 //-------------------------------------------------------------
@@ -83,12 +83,12 @@ int StringCompare<_CharT,_CaseSensitive>::operator()( const _CharT* lhs, const _
 
 template <>
 int StringCompare<char,true>::operator()( const char* lhs, const char* rhs ) const
-{ return strcmp( lhs, rhs ); }
+{ return ( lhs && rhs ? strcmp( lhs, rhs ) : rhs-lhs); }
 
 # pragma warning(disable : 4996)
 template <>
 int StringCompare<char,false>::operator()( const char* lhs, const char* rhs ) const
-{ return stricmp( lhs, rhs ); }
+{ return ( lhs && rhs ? stricmp( lhs, rhs ) : rhs-lhs); }
 # pragma warning(default : 4996)
 
 //-------------------------------------------------------------
